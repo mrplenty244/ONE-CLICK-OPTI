@@ -4,7 +4,7 @@
 .SYNOPSIS
 Applies "Clean" Start Menu and Taskbar settings (Recommended).
 Modifies registry settings, recreates Quick Launch folders, pins File Explorer,
-cleans Start Menu layouts for W10/W11, and removes various Taskbar buttons/features.
+cleans Start Menu layouts for W10/W11, and removes various Taskbar buttons/features. Exits automatically.
 
 .DESCRIPTION
 This script performs the following actions directly, without user prompts:
@@ -22,7 +22,7 @@ This script performs the following actions directly, without user prompts:
     - (W11 Only) Hides the 'Recommended' section via policy registry keys.
     - (W10 Only) Applies a blank Start Menu layout using a temporary XML file and registry policies, then removes the policies and file.
 4. Restarts Windows Explorer to apply most changes.
-5. Prompts the user that a full system restart is recommended to ensure all changes take effect.
+5. Outputs completion messages and exits automatically. A full system restart is recommended.
 
 .NOTES
 - Requires Administrator privileges.
@@ -45,7 +45,7 @@ if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdenti
         Start-Process PowerShell.exe -ArgumentList $ArgumentList -Verb RunAs -ErrorAction Stop
     } catch {
         Write-Error "Failed to elevate script to Administrator privileges. Please run the script as Administrator manually."
-        if (-not $env:CI) { Read-Host "Press Enter to exit" }
+        # Removed Read-Host for automatic exit in non-admin scenario after error
         Exit 1
     }
     # Exit the current non-elevated instance
@@ -260,7 +260,7 @@ Pp2wJZn6LKRmzoLWJMFm1A1Oa4RUIkEpA3AAL+5TauxfawpdtTjicoWGQ5gGNwum
 +evTnGEpDimE5kUU6uiJ0rotjNpB52I+8qmbgIPkY0Fwwal5Z5yvZJ8eepQjvdZ2
 UcdvlTS8oA5YayGi+ASmnJSbsr/v1OOcLmnpwPI+hRgPP+Hwu5rWkOT+SDomF1TO
 n/k7NkJ967X0kPx6XtxTPgcG1aKJwZBNQDKDP17/dlZ869W3o6JdgCEvt1nIOPty
-lGgvGERC0jCNRJpGml4/py7AtP0WOxrs+YS60sPKMATtiGzp34++dAmHyVEmelhK
+lGgvGERC0jCNRJpGml4/py7AtP0WOxrs+YS60sPKMATtiGzp+4++dAmHyVEmelhK
 apQBuxFl6LQN33+2NNn6L5twI4IQfnm6Cvly9r3VBO0Bi+rpjdftr60scRQM1qw+
 9dEz4xL9VEL6wrnyAERLY58wmS9Zp73xXQ1mdDB+yKkGOHeIiA7tCwnNZqClQ8Mf
 RnZIAeL1jcqrIsmkQNs4RTuE+ApcnE5DMcvJMgEd1fU3JDRJbaUv+w7kxj4/+G5b
@@ -439,13 +439,16 @@ try {
 }
 
 
-# --- Final Step: Restart Prompt ---
-Clear-Host
+# --- Final Step: Output Completion Message ---
+#Clear-Host # Removed clear host here to keep logs visible
 Write-Host "`nClean Start Menu and Taskbar settings applied." -ForegroundColor Green
 Write-Host "Windows Explorer has been restarted." -ForegroundColor Green
 Write-Host "A full system RESTART is recommended to ensure all changes take effect properly." -ForegroundColor Yellow
-Write-Host "`nPress any key to exit." -ForegroundColor White
-$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+
+# Removed the "Press any key" prompt and ReadKey
+# Write-Host "`nPress any key to exit." -ForegroundColor White
+# $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+
 exit 0
 
 #endregion Main Script Logic
