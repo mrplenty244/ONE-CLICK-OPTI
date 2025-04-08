@@ -55,7 +55,7 @@ try {
     Set-ItemProperty -Path $regKeyEdgeUpdate -Name "DoNotUpdateToEdgeWithChromium" -Value 1 -Type DWord -Force
 } catch {
     # Ignore errors
-} # <<< Added missing brace
+} # <<< CORRECTED: Added missing brace
 
 try {
     # Allow uninstall (Note: This key might not always exist or work)
@@ -63,7 +63,7 @@ try {
     Set-ItemProperty -Path $regKeyEdgeUpdateDev -Name "AllowUninstall" -Value 1 -Type DWord -Force # Set as DWORD 1, original used SZ without value
 } catch {
     # Ignore errors
-} # <<< Added missing brace
+} # <<< CORRECTED: Added missing brace
 
 # --- Step 4: Attempt Edge Uninstall via its UninstallString ---
 $edgeUninstallKeyPath = "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Microsoft Edge"
