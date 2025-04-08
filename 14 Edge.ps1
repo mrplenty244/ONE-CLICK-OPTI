@@ -53,18 +53,23 @@ try {
     # Prevent updates via Chromium channel
     if (-not (Test-Path $regKeyEdgeUpdate)) { New-Item -Path $regKeyEdgeUpdate -Force | Out-Null }
     Set-ItemProperty -Path $regKeyEdgeUpdate -Name "DoNotUpdateToEdgeWithChromium" -Value 1 -Type DWord -Force
-} catch { # Ignore errors }
+} catch {
+    # Ignore errors
+} # <<< Added missing brace
 
 try {
     # Allow uninstall (Note: This key might not always exist or work)
     if (-not (Test-Path $regKeyEdgeUpdateDev)) { New-Item -Path $regKeyEdgeUpdateDev -Force | Out-Null }
     Set-ItemProperty -Path $regKeyEdgeUpdateDev -Name "AllowUninstall" -Value 1 -Type DWord -Force # Set as DWORD 1, original used SZ without value
-} catch { # Ignore errors }
+} catch {
+    # Ignore errors
+} # <<< Added missing brace
 
 # --- Step 4: Attempt Edge Uninstall via its UninstallString ---
 $edgeUninstallKeyPath = "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Microsoft Edge"
 $uninstallStringRaw = $null
 $uninstallArgs = $null
+$exePath = $null # Initialize exePath
 
 try {
     if (Test-Path $edgeUninstallKeyPath) {
@@ -88,7 +93,7 @@ try {
             $uninstallArgs = "--force-uninstall"
         }
 
-        if (Test-Path $exePath) {
+        if ($exePath -and (Test-Path $exePath)) { # Check if exePath was assigned and exists
             Start-Process -FilePath $exePath -ArgumentList $uninstallArgs -WindowStyle Hidden -Wait -ErrorAction SilentlyContinue | Out-Null
         }
     }
@@ -101,7 +106,10 @@ $edgeUpdatePaths = @()
 $searchFolders = @("LocalApplicationData", "ProgramFilesX86", "ProgramFiles")
 foreach ($folderType in $searchFolders) {
     $folderPath = [Environment]::GetFolderPath($folderType)
-    $edgeUpdatePaths += Get-ChildItem (Join-Path $folderPath "Microsoft\EdgeUpdate\*.*.*.*\MicrosoftEdgeUpdate.exe") -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName
+    # Check if folder path exists before trying Get-ChildItem
+    if ($folderPath -and (Test-Path $folderPath)) {
+        $edgeUpdatePaths += Get-ChildItem (Join-Path $folderPath "Microsoft\EdgeUpdate\*.*.*.*\MicrosoftEdgeUpdate.exe") -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName
+    }
 }
 $edgeUpdatePaths = $edgeUpdatePaths | Get-Unique
 
